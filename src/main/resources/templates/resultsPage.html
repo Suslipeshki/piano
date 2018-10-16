@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Results</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<h1>WELCOME!</h1>
+<h2>StackExchange Questions Searching</h2>
+<form th:action="@{/resultsPage.html}" th:object="${queryForm}" method="POST">
+    TITLE:
+    <input type="text" th:field="*{title}"/>
+    <br/>
+    CREATION:
+    From Date:
+    <input type="date" th:field="*{fromDate}"/>
+    <br/>
+    To Date:
+    <input type="date" th:field="*{toDate}"/>
+    <br/>
+    ANSWERED:
+    <input type="checkbox" th:field="*{answered}"/>
+    <br/>
+    <input type="submit" value="Search">
+</form>
+<a href="homePage">Home Page</a>
+<br/><br/>
+<h2>Searching Results</h2>
+<div>
+    <table border="1">
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Creation</th>
+        </tr>
+        <tr th:each="question:${questions}">
+            <td th:utext="${question.title}">...</td>
+            <td th:utext="${question.author}">...</td>
+            <td th:utext="${#dates.format(question.creation, 'yyyy-MM-dd')}">...</td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

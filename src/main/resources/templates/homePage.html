@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Home Page</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<h1>WELCOME!</h1>
+<h2>StackExchange Questions Searching</h2>
+<form th:action="@{/homePage}" th:object="${queryForm}" method="POST">
+    TITLE:
+    <input type="text" th:field="*{title}"/>
+    <br/>
+    CREATION:
+    From Date:
+    <input type="date" th:field="*{fromDate}"/>
+    <br/>
+    To Date:
+    <input type="date" th:field="*{toDate}"/>
+    <br/>
+    ANSWERED:
+    <input type="checkbox" th:field="*{answered}"/>
+    <br/>
+    <input type="submit" value="Search">
+</form>
+</body>
+</html>
