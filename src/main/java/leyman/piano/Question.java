@@ -12,11 +12,12 @@ public class Question {
     public Question() {
     }
 
-    public Question(String title, String author, Date creation, boolean answered) {
+    public Question(String title, String author, Date creation, boolean answered, String link) {
         this.title = title;
         this.author = author;
         this.creation = creation;
         this.answered = answered;
+        this.link = link;
     }
 
     public String getTitle() { return title; }

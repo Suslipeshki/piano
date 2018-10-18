@@ -8,19 +8,17 @@
 <body>
 <h1>WELCOME!</h1>
 <h2>StackExchange Questions Searching</h2>
-<form th:action="@{/resultsPage.html}" th:object="${queryForm}" method="POST">
+<form th:action="@{/resultsPage}" th:object="${queryForm}" method="POST">
     TITLE:
     <input type="text" th:field="*{title}"/>
     <br/>
     CREATION:
+    <br/>
     From Date:
     <input type="date" th:field="*{fromDate}"/>
     <br/>
     To Date:
     <input type="date" th:field="*{toDate}"/>
-    <br/>
-    ANSWERED:
-    <input type="checkbox" th:field="*{answered}"/>
     <br/>
     <input type="submit" value="Search">
 </form>
@@ -35,7 +33,10 @@
             <th>Creation</th>
         </tr>
         <tr th:each="question:${questions}">
-            <td th:utext="${question.title}">...</td>
+            <td bgcolor="#f0e68c" th:if="${question.answered} == false">
+                <a target="_blank" th:href="${question.link}" th:utext="${question.title}">...</a></td>
+            <td bgcolor="#b3ef9b" th:if="${question.answered} == true">
+                <a target="_blank" th:href="${question.link}" th:utext="${question.title}">...</a></td>
             <td th:utext="${question.author}">...</td>
             <td th:utext="${#dates.format(question.creation, 'yyyy-MM-dd')}">...</td>
         </tr>

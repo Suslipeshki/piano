@@ -1,5 +1,7 @@
 package leyman.piano;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -10,28 +12,34 @@ import java.util.List;
 
 @Component
 public class FrontendService {
+    @Autowired
+    private StackExchangeService stackExchangeService;
     private static List<Question> questions = new ArrayList<>();
 
-    public String showHomePage(Model model) {
+    @Value("${error.message}")
+    private String errorMessage;
+
+
+    public String homePage(Model model) {
         QueryForm queryForm = new QueryForm();
         model.addAttribute("queryForm", queryForm);
         return "homePage";
     }
 
-    public String searching(Model model, @ModelAttribute("queryForm") QueryForm queryForm) {
-        String title = queryForm.getTitle();
-        String author = queryForm.getTitle();
-        Date toDate = queryForm.getToDate();
-        boolean answered = queryForm.isAnswered();
-        Question newQuestion = new Question(title, author, toDate, answered);
-        questions.add(newQuestion);
-        return "redirect:resultsPage";
+    public String search(Model model, @ModelAttribute("queryForm") QueryForm queryForm) {
+        if (queryForm.getTitle() != "") {
+            List<Question> scan = stackExchangeService.scan(queryForm);
+            model.addAttribute("questions", scan);
+            return "resultsPage";
+        }
+        model.addAttribute("errorMessage", errorMessage);
+        return "homePage";
     }
 
     public String results(Model model) {
         QueryForm queryForm = new QueryForm();
         model.addAttribute("queryForm", queryForm);
-        model.addAttribute("questions", questions);
+        model.addAttribute("question", questions);
         return "resultsPage";
     }
 

@@ -13,16 +13,16 @@
     <input type="text" th:field="*{title}"/>
     <br/>
     CREATION:
+    <br/>
     From Date:
     <input type="date" th:field="*{fromDate}"/>
     <br/>
     To Date:
     <input type="date" th:field="*{toDate}"/>
     <br/>
-    ANSWERED:
-    <input type="checkbox" th:field="*{answered}"/>
-    <br/>
     <input type="submit" value="Search">
 </form>
+<br/>
+<div th:if="${errorMessage}" th:utext="${errorMessage}" style="color:red;font-style:italic;"></div>
 </body>
 </html>

@@ -12,7 +12,6 @@ public class QueryForm {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date toDate;
-    private boolean answered;
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -22,7 +21,4 @@ public class QueryForm {
 
     public Date getToDate() { return toDate; }
     public void setToDate(Date toDate) { this.toDate = toDate; }
-
-    public boolean isAnswered() { return answered; }
-    public void setAnswered(boolean answered) { this.answered = answered; }
 }
