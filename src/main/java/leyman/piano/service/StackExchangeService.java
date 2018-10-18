@@ -1,5 +1,7 @@
-package leyman.piano;
+package leyman.piano.service;
 
+import leyman.piano.model.Item;
+import leyman.piano.model.Question;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
@@ -13,20 +15,14 @@ import java.util.List;
 
 @Component
 public class StackExchangeService {
+
     private HttpComponentsClientHttpRequestFactory clientHttpRequestFactory =
             new HttpComponentsClientHttpRequestFactory(HttpClientBuilder.create().build());
-    private RestTemplate restTemplate = new RestTemplate(clientHttpRequestFactory);
-    private Date epochToDate(long epoch) {
-        return new Date(epoch*1000);
-    }
 
-    private String dateToEpoch(Date date) {
-        if (date != null) {
-            return Long.toString(date.getTime()/1000);
-        }
-        return null;
-    }
-    public List<Question> scan(QueryForm queryForm) {
+    private RestTemplate restTemplate = new RestTemplate(clientHttpRequestFactory);
+
+    public List<leyman.piano.model.Question> getQuestions(leyman.piano.form.QueryForm queryForm) {
+        List<Question> questions = new ArrayList<>();
         URI targetUrl = UriComponentsBuilder.fromUriString("http://api.stackexchange.com/2.2/search")
                 .queryParam("intitle", queryForm.getTitle())
                 .queryParam("fromDate", dateToEpoch(queryForm.getFromDate()))
@@ -38,11 +34,10 @@ public class StackExchangeService {
                 .build()
                 .encode()
                 .toUri();
-        QuestionsDto questionsDto = restTemplate.getForObject(targetUrl,
-                QuestionsDto.class);
-        List<Question> questions = new ArrayList<>();
+        leyman.piano.model.Items items = restTemplate.getForObject(targetUrl,
+                leyman.piano.model.Items.class);
 
-        for (Item item : questionsDto.getItems()) {
+        for (Item item : items.getItems()) {
             Question question = new Question(
                     item.getTitle(),
                     item.getOwner().getDisplayName(),
@@ -53,5 +48,17 @@ public class StackExchangeService {
             questions.add(question);
         }
        return questions;
+    }
+
+    //Date conversation methods
+    private Date epochToDate(long epoch) {
+        return new Date(epoch*1000);
+    }
+
+    private String dateToEpoch(Date date) {
+        if (date != null) {
+            return Long.toString(date.getTime()/1000);
+        }
+        return null;
     }
 }

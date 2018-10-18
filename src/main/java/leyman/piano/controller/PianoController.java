@@ -1,5 +1,7 @@
-package leyman.piano;
+package leyman.piano.controller;
 
+import leyman.piano.form.QueryForm;
+import leyman.piano.service.FrontendService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,9 +14,6 @@ public class PianoController {
     @Autowired
     private FrontendService frontendService;
 
-    @Autowired
-    private StackExchangeService stackExchangeService;
-
     @RequestMapping(value = {"/", "/homePage"}, method = RequestMethod.GET)
     public String getHomePage(Model model){
         return frontendService.homePage(model);
@@ -22,7 +21,7 @@ public class PianoController {
 
     @RequestMapping(value = {"/resultsPage"}, method = RequestMethod.GET)
     public String getResults(Model model) {
-        return frontendService.results(model);
+        return frontendService.resultsPage(model);
     }
 
     @RequestMapping(value = {"/homePage", "/resultsPage"}, method = RequestMethod.POST)

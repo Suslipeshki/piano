@@ -1,5 +1,5 @@
 
-package leyman.piano;
+package leyman.piano.model;
 
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -10,19 +10,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "items"
 })
-public class QuestionsDto {
+public class Items {
 
     @JsonProperty("items")
     private List<Item> items = null;
 
     @JsonProperty("items")
-    public List<Item> getItems() {
-        return items;
-    }
+    public List<Item> getItems() { return items; }
 
     @JsonProperty("items")
-    public void setItems(List<Item> items) {
-        this.items = items;
-    }
+    public void setItems(List<Item> items) { this.items = items; }
 
 }

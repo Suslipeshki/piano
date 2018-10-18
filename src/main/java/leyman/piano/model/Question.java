@@ -1,4 +1,4 @@
-package leyman.piano;
+package leyman.piano.model;
 
 import java.util.Date;
 

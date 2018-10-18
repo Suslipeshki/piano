@@ -11,6 +11,7 @@
 <form th:action="@{/resultsPage}" th:object="${queryForm}" method="POST">
     TITLE:
     <input type="text" th:field="*{title}"/>
+    <div th:if="${errorMessage}" th:utext="${errorMessage}" style="color:red;font-style:italic;"></div>
     <br/>
     CREATION:
     <br/>
@@ -24,9 +25,9 @@
 </form>
 <a href="homePage">Home Page</a>
 <br/><br/>
-<h2>Searching Results</h2>
-<div>
-    <table border="1">
+<div th:unless="${errorMessage}">
+    <h2>Searching Results</h2>
+    <table border="1" th:unless="${nothingFoundMessage}">
         <tr>
             <th>Title</th>
             <th>Author</th>
@@ -42,5 +43,6 @@
         </tr>
     </table>
 </div>
+<div th:if="${nothingFoundMessage}" th:utext="${nothingFoundMessage}" style="color:orange;font-style:italic;"></div>
 </body>
 </html>

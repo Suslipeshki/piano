@@ -1,4 +1,4 @@
-package leyman.piano;
+package leyman.piano.form;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
