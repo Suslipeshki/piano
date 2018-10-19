@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.NoRouteToHostException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,20 +35,23 @@ public class StackExchangeService {
                 .build()
                 .encode()
                 .toUri();
-        leyman.piano.model.Items items = restTemplate.getForObject(targetUrl,
-                leyman.piano.model.Items.class);
-
-        for (Item item : items.getItems()) {
-            Question question = new Question(
-                    item.getTitle(),
-                    item.getOwner().getDisplayName(),
-                    epochToDate(item.getCreationDate()),
-                    item.getIsAnswered(),
-                    item.getLink()
-            );
-            questions.add(question);
+        try {
+            leyman.piano.model.Items items = restTemplate.getForObject(targetUrl,
+                    leyman.piano.model.Items.class);
+            for (Item item : items.getItems()) {
+                Question question = new Question(
+                        item.getTitle(),
+                        item.getOwner().getDisplayName(),
+                        epochToDate(item.getCreationDate()),
+                        item.getIsAnswered(),
+                        item.getLink()
+                );
+                questions.add(question);
+            }
+        } catch (Exception e) {
+            return questions;
         }
-       return questions;
+        return questions;
     }
 
     //Date conversation methods
