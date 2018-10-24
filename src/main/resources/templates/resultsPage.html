@@ -26,6 +26,7 @@
 <a href="homePage">Home Page</a>
 <br/><br/>
 <div th:unless="${errorMessage}">
+    <div th:unless="${httpIsNotAvailable}">
     <h2>Searching Results</h2>
     <table border="1" th:unless="${nothingFoundMessage}">
         <tr>
@@ -42,7 +43,9 @@
             <td th:utext="${#dates.format(question.creation, 'yyyy-MM-dd')}">...</td>
         </tr>
     </table>
+    </div>
 </div>
 <div th:if="${nothingFoundMessage}" th:utext="${nothingFoundMessage}" style="color:orange;font-style:italic;"></div>
+<div th:if="${httpIsNotAvailable}" th:utext="${httpIsNotAvailable}" style="color:orange;font-style:italic;"></div>
 </body>
 </html>

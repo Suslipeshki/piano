@@ -15,6 +15,13 @@ public class Items {
     @JsonProperty("items")
     private List<Item> items = null;
 
+    public Items() {
+
+    }
+    public Items(List<Item> items) {
+        this.items = items;
+    }
+
     @JsonProperty("items")
     public List<Item> getItems() { return items; }
 

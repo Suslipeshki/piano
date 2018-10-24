@@ -35,21 +35,17 @@ public class StackExchangeService {
                 .build()
                 .encode()
                 .toUri();
-        try {
-            leyman.piano.model.Items items = restTemplate.getForObject(targetUrl,
-                    leyman.piano.model.Items.class);
-            for (Item item : items.getItems()) {
-                Question question = new Question(
-                        item.getTitle(),
-                        item.getOwner().getDisplayName(),
-                        epochToDate(item.getCreationDate()),
-                        item.getIsAnswered(),
-                        item.getLink()
-                );
-                questions.add(question);
-            }
-        } catch (Exception e) {
-            return questions;
+        leyman.piano.model.Items items = restTemplate.getForObject(targetUrl,
+                leyman.piano.model.Items.class);
+        for (Item item : items.getItems()) {
+            Question question = new Question(
+                    item.getTitle(),
+                    item.getOwner().getDisplayName(),
+                    epochToDate(item.getCreationDate()),
+                    item.getIsAnswered(),
+                    item.getLink()
+            );
+            questions.add(question);
         }
         return questions;
     }

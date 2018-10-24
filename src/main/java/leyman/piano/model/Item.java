@@ -26,6 +26,17 @@ public class Item {
     @JsonProperty("title")
     private String title;
 
+    public Item() {
+    }
+
+    public Item(String displayName, Boolean isAnswered, Integer creationDate, String link, String title) {
+        this.owner = new Owner(displayName);
+        this.isAnswered = isAnswered;
+        this.creationDate = creationDate;
+        this.link = link;
+        this.title = title;
+    }
+
     @JsonProperty("owner")
     public Owner getOwner() {
         return owner;

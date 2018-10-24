@@ -14,6 +14,13 @@ public class Owner {
     @JsonProperty("display_name")
     private String displayName;
 
+    public Owner() {
+    }
+
+    public Owner(String displayName) {
+        this.displayName = displayName;
+    }
+
     @JsonProperty("display_name")
     public String getDisplayName() {
         return displayName;
