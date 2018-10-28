@@ -3,7 +3,9 @@ package leyman.piano.controller;
 import leyman.piano.form.QueryForm;
 import leyman.piano.model.Question;
 import leyman.piano.service.FrontendService;
+import leyman.piano.service.StackExchangeResponse;
 import leyman.piano.service.StackExchangeService;
+import leyman.piano.service.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -23,14 +25,17 @@ public class PianoController {
     @Autowired
     private StackExchangeService stackExchangeService;
 
-    @Value("${error.message}")
-    private String errorMessage;
+    @Value("${failed.message}")
+    private String failedMessage;
 
     @Value("${nothingFound.message}")
     private String nothingFoundMessage;
 
+    @Value("${error.message}")
+    private String errorMessage;
+
     @RequestMapping(value = {"/", "/homePage"}, method = RequestMethod.GET)
-    public String getHomePage(Model model){
+    public String getHomePage(Model model) {
         QueryForm queryForm = frontendService.homePage();
         model.addAttribute("queryForm", queryForm);
         return "homePage";
@@ -38,14 +43,21 @@ public class PianoController {
 
     @RequestMapping(value = {"/homePage", "/resultsPage"}, method = RequestMethod.POST)
     public String getResults(Model model, QueryForm queryForm) {
-        if (!queryForm.getTitle().equals("")) {
-            List<Question> questions = stackExchangeService.getQuestions(queryForm);
-            if (questions.size() != 0) {
-                model.addAttribute("questions", questions);
+        StackExchangeResponse response = stackExchangeService.getQuestions(queryForm);
+        switch (response.getStatus()) {
+            case FAILED:
+                model.addAttribute("failedMessage", failedMessage);
                 return "resultsPage";
-            }
-            model.addAttribute("nothingFoundMessage", nothingFoundMessage);
-            return "resultsPage";
+            case SUCCESS:
+                model.addAttribute("questions", response.getQuestions());
+                return "resultsPage";
+            case NOT_FOUND:
+                model.addAttribute("nothingFoundMessage", nothingFoundMessage);
+                return "resultsPage";
+            case ERROR:
+                model.addAttribute("errorMessage", errorMessage);
+                return "resultsPage";
+
         }
         model.addAttribute("errorMessage", errorMessage);
         return "resultsPage";

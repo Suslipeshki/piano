@@ -1,42 +1,51 @@
 package leyman.piano.service;
 
+import leyman.piano.form.QueryForm;
 import leyman.piano.model.Item;
+import leyman.piano.model.Items;
 import leyman.piano.model.Question;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.NoRouteToHostException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
+
+import static leyman.piano.utils.DateEpochConverter.dateToEpoch;
+import static leyman.piano.utils.DateEpochConverter.epochToDate;
 
 @Component
 public class StackExchangeService {
 
-    private HttpComponentsClientHttpRequestFactory clientHttpRequestFactory =
-            new HttpComponentsClientHttpRequestFactory(HttpClientBuilder.create().build());
+    private final RestTemplate restTemplate;
 
-    private RestTemplate restTemplate = new RestTemplate(clientHttpRequestFactory);
+    @Autowired
+    public StackExchangeService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
-    public List<leyman.piano.model.Question> getQuestions(leyman.piano.form.QueryForm queryForm) {
+    public StackExchangeResponse getQuestions(QueryForm queryForm) {
+        try {
+            if (queryForm.getTitle().equals("")) {
+                return new StackExchangeResponse(Collections.emptyList(), Status.FAILED);
+            }
+            URI targetUrl = prepareRequestUrl(queryForm);
+            Items items = restTemplate.getForObject(targetUrl, Items.class);
+            if (items.getItems().size() == 0) {
+                return new StackExchangeResponse(null, Status.NOT_FOUND);
+            }
+            List<Question> questions = processResponse(items);
+            return new StackExchangeResponse(questions, Status.SUCCESS);
+        } catch (org.springframework.web.client.ResourceAccessException e) {
+            return new StackExchangeResponse(null, Status.ERROR);
+        }
+    }
+
+    private List<Question> processResponse(Items items) {
         List<Question> questions = new ArrayList<>();
-        URI targetUrl = UriComponentsBuilder.fromUriString("http://api.stackexchange.com/2.2/search")
-                .queryParam("intitle", queryForm.getTitle())
-                .queryParam("fromDate", dateToEpoch(queryForm.getFromDate()))
-                .queryParam("toDate", dateToEpoch(queryForm.getToDate()))
-                .queryParam("order", "desc")
-                .queryParam("sort", "activity")
-                .queryParam("site", "stackoverflow")
-                .queryParam("filter","!*1ShIjGxdqfo8*16Vn7KWgOU(mrLERWX8-iCBEtST")
-                .build()
-                .encode()
-                .toUri();
-        leyman.piano.model.Items items = restTemplate.getForObject(targetUrl,
-                leyman.piano.model.Items.class);
         for (Item item : items.getItems()) {
             Question question = new Question(
                     item.getTitle(),
@@ -50,15 +59,17 @@ public class StackExchangeService {
         return questions;
     }
 
-    //Date conversation methods
-    private Date epochToDate(long epoch) {
-        return new Date(epoch*1000);
-    }
-
-    private String dateToEpoch(Date date) {
-        if (date != null) {
-            return Long.toString(date.getTime()/1000);
-        }
-        return null;
+    private URI prepareRequestUrl(QueryForm queryForm) {
+        return UriComponentsBuilder.fromUriString("http://api.stackexchange.com/2.2/search")
+                    .queryParam("intitle", queryForm.getTitle())
+                    .queryParam("fromDate", dateToEpoch(queryForm.getFromDate()))
+                    .queryParam("toDate", dateToEpoch(queryForm.getToDate()))
+                    .queryParam("order", "desc")
+                    .queryParam("sort", "activity")
+                    .queryParam("site", "stackoverflow")
+                    .queryParam("filter", "!*1ShIjGxdqfo8*16Vn7KWgOU(mrLERWX8-iCBEtST")
+                    .build()
+                    .encode()
+                    .toUri();
     }
 }

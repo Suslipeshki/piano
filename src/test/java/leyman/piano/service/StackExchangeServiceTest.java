@@ -3,44 +3,99 @@ package leyman.piano.service;
 import leyman.piano.form.QueryForm;
 import leyman.piano.model.Item;
 import leyman.piano.model.Items;
-import leyman.piano.model.Question;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.json.JSONObject;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import static leyman.piano.utils.DateEpochConverter.dateToEpoch;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class StackExchangeServiceTest {
 
-    @TestConfiguration
-    static class StackExchangeServiceTestContextConfiguration {
-        @Bean
-        public StackExchangeService stackExchangeService() {
-            return new StackExchangeService();
-        }
+    @Mock
+    private RestTemplate restTemplate;
+    @InjectMocks
+    private StackExchangeService service;
+
+    @Test
+    public void whenValidQueryForm_thenReturnsListQuestionsAndStatusSuccess() {
+
+        Items items = createItems();
+        when(restTemplate.getForObject(any(URI.class), any())).thenReturn(items);
+
+        QueryForm queryForm = new QueryForm();
+        queryForm.setTitle("asdfg");
+        StackExchangeResponse response = service.getQuestions(queryForm);
+        assertNotNull(response);
+        assertEquals(Status.SUCCESS, response.getStatus());
+        assertNotNull(response.getQuestions());
+        assertNotEquals(0, response.getQuestions().size());
+        URI expected = expectedURI(queryForm);
+        verify(restTemplate, times(1)).getForObject(expected, Items.class);
     }
 
-    @Autowired
-    private StackExchangeService stackExchangeService;
+    @Test()
+    public void whenTitleFromQueryFormIsNull_thenReturnsResponseWithFailedStatus() {
+        QueryForm queryForm = new QueryForm();
+        queryForm.setTitle("");
+        StackExchangeResponse response = service.getQuestions(queryForm);
+        assertNotNull(response);
+        assertEquals(Status.FAILED, response.getStatus());
+    }
 
-    @MockBean
-    private RestTemplate restTemplate = new RestTemplate();
+    @Test
+    public void whenRestTemplateReturnNull_thenReturnsResponseWithStatusNotFound() {
 
-    @Before
-    public void setUp() {
+        Items items = createNullItems();
+        when(restTemplate.getForObject(any(URI.class), any())).thenReturn(items);
+
+        QueryForm queryForm = new QueryForm();
+        queryForm.setTitle("java");
+        StackExchangeResponse response = service.getQuestions(queryForm);
+        assertNotNull(response.getStatus());
+        assertEquals(Status.NOT_FOUND, response.getStatus());
+    }
+
+    @Test
+    public void whenURLIsNotAvailable_thenReturnsResponseWithStatusError() {
+
+        when(restTemplate.getForObject(any(URI.class), any()))
+                .thenThrow(new org.springframework.web.client.ResourceAccessException(""));
+        QueryForm queryForm = new QueryForm();
+        queryForm.setTitle("java");
+        StackExchangeResponse response = service.getQuestions(queryForm);
+        assertNotNull(response.getStatus());
+        assertEquals(Status.ERROR, response.getStatus());
+    }
+
+    private URI expectedURI(QueryForm queryForm) {
+        return UriComponentsBuilder.fromUriString("http://api.stackexchange.com/2.2/search")
+                .queryParam("intitle", queryForm.getTitle())
+                .queryParam("fromDate", dateToEpoch(queryForm.getFromDate()))
+                .queryParam("toDate", dateToEpoch(queryForm.getToDate()))
+                .queryParam("order", "desc")
+                .queryParam("sort", "activity")
+                .queryParam("site", "stackoverflow")
+                .queryParam("filter", "!*1ShIjGxdqfo8*16Vn7KWgOU(mrLERWX8-iCBEtST")
+                .build()
+                .encode()
+                .toUri();
+    }
+
+    private Items createItems() {
+        List<Item> itemList = new ArrayList<>();
+
         Item item1 = new Item(
                 "Gilbert Gabriel",
                 false,
@@ -63,115 +118,15 @@ public class StackExchangeServiceTest {
                 "JAVA creating ArrayList&lt;String&gt; in a method call."
         );
 
-        //results for whenValidFilledQueryForm_thenQuestionsShouldBeFound
-        List<Item> items11 = new ArrayList<>();
-        items11.add(item2);
-        Items items1 = new Items(items11);
-        Mockito.when(restTemplate.getForObject("http://api.stackexchange.com/2.2/search" +
-                "?intitle=java" +
-                "&fromDate=1538391975" +
-                "&toDate=1540384595" +
-                "&order=desc&sort=activity&site=stackoverflow&filter=!*1ShIjGxdqfo8*16Vn7KWgOU(mrLERWX8-iCBEtST",
-                leyman.piano.model.Items.class)).thenReturn(items1);
+        itemList.add(item1);
+        itemList.add(item2);
+        itemList.add(item3);
 
-        //results for whenUnfilledFromDateQueryForm_thenQuestionsShouldBeFound
-        List<Item> items22 = new ArrayList<>();
-        items22.add(item1);
-        items22.add(item2);
-        Items items2 = new Items(items22);
-        Mockito.when(restTemplate.getForObject("http://api.stackexchange.com/2.2/search" +
-                        "?intitle=java" +
-                        "&fromDate" +
-                        "&toDate=1540384595" +
-                        "&order=desc&sort=activity&site=stackoverflow&filter=!*1ShIjGxdqfo8*16Vn7KWgOU(mrLERWX8-iCBEtST",
-                leyman.piano.model.Items.class)).thenReturn(items2);
-
-        //results for whenUnfilledToDateQueryForm_thenQuestionsShouldBeFound
-        List<Item> items33 = new ArrayList<>();
-        items33.add(item2);
-        items33.add(item3);
-        Items items3 = new Items(items33);
-        Mockito.when(restTemplate.getForObject("http://api.stackexchange.com/2.2/search" +
-                        "?intitle=java" +
-                        "&fromDate=1538391975" +
-                        "&toDate" +
-                        "&order=desc&sort=activity&site=stackoverflow&filter=!*1ShIjGxdqfo8*16Vn7KWgOU(mrLERWX8-iCBEtST",
-                leyman.piano.model.Items.class)).thenReturn(items3);
-
-        //results for whenUnfilledDatesQueryForm_thenQuestionsShouldBeFound
-        List<Item> items44 = new ArrayList<>();
-        items44.add(item1);
-        items44.add(item2);
-        items44.add(item3);
-        Items items4 = new Items(items44);
-        Mockito.when(restTemplate.getForObject("http://api.stackexchange.com/2.2/search" +
-                        "?intitle=java" +
-                        "&fromDate" +
-                        "&toDate" +
-                        "&order=desc&sort=activity&site=stackoverflow&filter=!*1ShIjGxdqfo8*16Vn7KWgOU(mrLERWX8-iCBEtST",
-                leyman.piano.model.Items.class)).thenReturn(items4);
-
-        //results for whenNonexistentTitleFilledQueryForm_thenQuestionsShouldNotBeFound
-        Items items5 = new Items();
-        Mockito.when(restTemplate.getForObject("http://api.stackexchange.com/2.2/search" +
-                        "?intitle=Nonexistent Title" +
-                        "&fromDate=1538391975" +
-                        "&toDate=1540384595" +
-                        "&order=desc&sort=activity&site=stackoverflow&filter=!*1ShIjGxdqfo8*16Vn7KWgOU(mrLERWX8-iCBEtST",
-                leyman.piano.model.Items.class)).thenReturn(items5);
-
-        //results for whenNotValidDatesFilledQueryForm_thenQuestionsShouldNotBeFound
-        Items items6 = new Items();
-        Mockito.when(restTemplate.getForObject("http://api.stackexchange.com/2.2/search" +
-                        "?intitle=java" +
-                        "&fromDate=1540384595" +
-                        "&toDate=1538391975" +
-                        "&order=desc&sort=activity&site=stackoverflow&filter=!*1ShIjGxdqfo8*16Vn7KWgOU(mrLERWX8-iCBEtST",
-                leyman.piano.model.Items.class)).thenReturn(items6);
+        return new Items(itemList);
     }
 
-    @Test
-    public void whenValidFilledQueryForm_thenQuestionsShouldBeFound() {
-        QueryForm queryForm = new QueryForm();
-        queryForm.setTitle("java");
-        queryForm.setFromDate(new Date(1538391975000L));
-        queryForm.setToDate(new Date(1540384595000L));
+    private Items createNullItems() {
+        List<Item> itemList = new ArrayList<>();
+        return new Items(itemList);
     }
-
-    @Test
-    public void whenUnfilledFromDateQueryForm_thenQuestionsShouldBeFound() {
-        QueryForm queryForm = new QueryForm();
-        queryForm.setTitle("java");
-        queryForm.setToDate(new Date(1540384595000L));
-    }
-
-    @Test
-    public void whenUnfilledToDateQueryForm_thenQuestionsShouldBeFound() {
-        QueryForm queryForm = new QueryForm();
-        queryForm.setTitle("java");
-        queryForm.setFromDate(new Date(1538391975000L));
-    }
-
-    @Test
-    public void whenUnfilledDatesQueryForm_thenQuestionsShouldBeFound() {
-        QueryForm queryForm = new QueryForm();
-        queryForm.setTitle("java");
-    }
-
-    @Test
-    public void whenNonexistentTitleFilledQueryForm_thenQuestionsShouldNotBeFound() {
-        QueryForm queryForm = new QueryForm();
-        queryForm.setTitle("Nonexistent title");
-        queryForm.setFromDate(new Date(1538391975000L));
-        queryForm.setToDate(new Date(1540384595000L));
-    }
-
-    @Test
-    public void whenNotValidDatesFilledQueryForm_thenQuestionsShouldNotBeFound() {
-        QueryForm queryForm = new QueryForm();
-        queryForm.setTitle("java");
-        queryForm.setFromDate(new Date(1538391975000L));
-        queryForm.setToDate(new Date(1540384595000L));
-    }
-
 }
