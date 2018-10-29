@@ -1,4 +1,4 @@
-package leyman.piano.service;
+package leyman.piano.service.stackexchange;
 
 import leyman.piano.form.QueryForm;
 import leyman.piano.model.Item;
@@ -18,15 +18,17 @@ import java.util.List;
 import static leyman.piano.utils.DateEpochConverter.dateToEpoch;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class StackExchangeServiceTest {
+public class StackExchangeServiceImplTest {
 
     @Mock
     private RestTemplate restTemplate;
     @InjectMocks
-    private StackExchangeService service;
+    private StackExchangeServiceImpl service;
 
     @Test
     public void whenValidQueryForm_thenReturnsListQuestionsAndStatusSuccess() {

@@ -1,4 +1,4 @@
-package leyman.piano.service;
+package leyman.piano.service.stackexchange;
 
 import leyman.piano.form.QueryForm;
 import leyman.piano.model.Item;
@@ -18,12 +18,12 @@ import static leyman.piano.utils.DateEpochConverter.dateToEpoch;
 import static leyman.piano.utils.DateEpochConverter.epochToDate;
 
 @Component
-public class StackExchangeService implements leyman.piano.serviceImpl.StackExchangeService {
+public class StackExchangeServiceImpl implements StackExchangeService {
 
     private final RestTemplate restTemplate;
 
     @Autowired
-    public StackExchangeService(RestTemplate restTemplate) {
+    public StackExchangeServiceImpl(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 

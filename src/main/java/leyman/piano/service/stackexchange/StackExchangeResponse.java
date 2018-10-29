@@ -1,4 +1,4 @@
-package leyman.piano.service;
+package leyman.piano.service.stackexchange;
 
 import leyman.piano.model.Question;
 

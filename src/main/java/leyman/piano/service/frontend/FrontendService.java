@@ -1,4 +1,4 @@
-package leyman.piano.serviceImpl;
+package leyman.piano.service.frontend;
 
 import leyman.piano.form.QueryForm;
 

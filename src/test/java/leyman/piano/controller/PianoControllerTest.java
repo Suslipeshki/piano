@@ -3,10 +3,12 @@ package leyman.piano.controller;
 import leyman.piano.filter.CORSFilter;
 import leyman.piano.form.QueryForm;
 import leyman.piano.model.Question;
-import leyman.piano.service.FrontendService;
-import leyman.piano.service.StackExchangeResponse;
-import leyman.piano.service.StackExchangeService;
-import leyman.piano.service.Status;
+import leyman.piano.service.frontend.FrontendService;
+import leyman.piano.service.frontend.FrontendServiceImpl;
+import leyman.piano.service.stackexchange.StackExchangeResponse;
+import leyman.piano.service.stackexchange.StackExchangeService;
+import leyman.piano.service.stackexchange.StackExchangeServiceImpl;
+import leyman.piano.service.stackexchange.Status;
 
 import org.junit.Before;
 import org.junit.Test;
