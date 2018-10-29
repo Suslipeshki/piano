@@ -46,16 +46,16 @@ public class PianoController {
         StackExchangeResponse response = stackExchangeService.getQuestions(queryForm);
         switch (response.getStatus()) {
             case FAILED:
-                model.addAttribute("failedMessage", failedMessage);
+                model.addAttribute("failedMessage", response.getMessage());
                 return "resultsPage";
             case SUCCESS:
                 model.addAttribute("questions", response.getQuestions());
                 return "resultsPage";
             case NOT_FOUND:
-                model.addAttribute("nothingFoundMessage", nothingFoundMessage);
+                model.addAttribute("nothingFoundMessage", response.getMessage());
                 return "resultsPage";
             case ERROR:
-                model.addAttribute("errorMessage", errorMessage);
+                model.addAttribute("errorMessage", response.getMessage());
                 return "resultsPage";
 
         }

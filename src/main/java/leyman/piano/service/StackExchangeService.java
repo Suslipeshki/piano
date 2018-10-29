@@ -30,17 +30,20 @@ public class StackExchangeService {
     public StackExchangeResponse getQuestions(QueryForm queryForm) {
         try {
             if (queryForm.getTitle().equals("")) {
-                return new StackExchangeResponse(Collections.emptyList(), Status.FAILED);
+                return new StackExchangeResponse
+                        (Collections.emptyList(),"Line \"TITLE\" is required!", Status.FAILED);
             }
             URI targetUrl = prepareRequestUrl(queryForm);
             Items items = restTemplate.getForObject(targetUrl, Items.class);
             if (items.getItems().size() == 0) {
-                return new StackExchangeResponse(null, Status.NOT_FOUND);
+                return new StackExchangeResponse
+                        (null,"Nothing found. Try to change the request parameters.", Status.NOT_FOUND);
             }
             List<Question> questions = processResponse(items);
-            return new StackExchangeResponse(questions, Status.SUCCESS);
+            return new StackExchangeResponse(questions, "", Status.SUCCESS);
         } catch (org.springframework.web.client.ResourceAccessException e) {
-            return new StackExchangeResponse(null, Status.ERROR);
+            return new StackExchangeResponse
+                    (null,"\"www.api.stackexchange.ru\" is not available at the moment", Status.ERROR);
         }
     }
 

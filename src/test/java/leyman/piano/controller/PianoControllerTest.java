@@ -26,9 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class PianoControllerTest {
 
-    private static final int UNKNOWN_ID = Integer.MAX_VALUE;
-
     private MockMvc mvc;
+    private List<Question> questions = new ArrayList<>();
 
     @Mock
     private FrontendService frontendService;
@@ -49,23 +48,61 @@ public class PianoControllerTest {
     }
 
     @Test
-    public void getHomePage() throws Exception{
-        when(frontendService.homePage()).thenReturn(new QueryForm());
+    public void whenMethodCalled_thenQueryFormAddsIntoModel()
+            throws Exception{
+        when(frontendService.homePage())
+                .thenReturn(new QueryForm());
         this.mvc.perform(get("/"))
         .andExpect(status().isOk())
         .andExpect(model().attributeExists("queryForm"));
     }
-
     @Test
-    public void getResults() throws Exception{
-        QueryForm queryForm = new QueryForm();
-        List<Question> questions = new ArrayList<>();
-        StackExchangeResponse stackExchangeResponse = new StackExchangeResponse(questions, Status.SUCCESS);
-        ResultActions resultActions = mvc.perform(post("/homePage")
-                .param("title", "java"));
-        when(stackExchangeService.getQuestions(queryForm)).thenReturn(stackExchangeResponse);
-
+    public void whenQueryForm_thenSendItToStackExchange_and_whenResponseWithStatusSuccess_thenQuestionsAddsIntoModel()
+            throws Exception{
+        StackExchangeResponse stackExchangeResponse =
+                new StackExchangeResponse(questions, "", Status.SUCCESS);
+        when(stackExchangeService.getQuestions(any(QueryForm.class)))
+                .thenReturn(stackExchangeResponse);
+        mvc.perform(post("/homePage")
+                .param("title", "java"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("questions"));
     }
-
+    @Test
+    public void whenQueryForm_thenSendItToStackExchange_andWhenResponseWithStatusFailed_thenFailedMessageAddsIntoModel()
+        throws Exception {
+        StackExchangeResponse stackExchangeResponse =
+                new StackExchangeResponse(questions, "Line \"TITLE\" is required!", Status.FAILED);
+        when(stackExchangeService.getQuestions(any(QueryForm.class)))
+                .thenReturn(stackExchangeResponse);
+        mvc.perform(post("/homePage")
+                .param("title", ""))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("failedMessage"));
+    }
+    @Test
+    public void whenQueryForm_thenSendItToStackExchange_andWhenResponseWithStatusNotFound_thenNotFoundMessageAddsIntoModel()
+            throws Exception {
+        StackExchangeResponse stackExchangeResponse =
+                new StackExchangeResponse(questions, "Nothing found. Try to change the request parameters.", Status.NOT_FOUND);
+        when(stackExchangeService.getQuestions(any(QueryForm.class)))
+                .thenReturn(stackExchangeResponse);
+        mvc.perform(post("/homePage")
+                .param("title", "ILNUR"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("nothingFoundMessage"));
+    }
+    @Test
+    public void whenQueryForm_thenSendItToStackExchange_andWhenResponseWithStatusError_thenErrorMessageAddsIntoModel()
+            throws Exception {
+        StackExchangeResponse stackExchangeResponse =
+                new StackExchangeResponse(questions, "\"www.api.stackexchange.ru\" is not available at the moment", Status.ERROR);
+        when(stackExchangeService.getQuestions(any(QueryForm.class)))
+                .thenReturn(stackExchangeResponse);
+        mvc.perform(post("/homePage")
+                .param("title", "java"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("errorMessage"));
+    }
 
 }
