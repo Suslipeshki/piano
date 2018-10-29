@@ -18,7 +18,7 @@ import static leyman.piano.utils.DateEpochConverter.dateToEpoch;
 import static leyman.piano.utils.DateEpochConverter.epochToDate;
 
 @Component
-public class StackExchangeService {
+public class StackExchangeService implements leyman.piano.serviceImpl.StackExchangeService {
 
     private final RestTemplate restTemplate;
 

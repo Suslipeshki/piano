@@ -1,20 +1,15 @@
 package leyman.piano.controller;
 
 import leyman.piano.form.QueryForm;
-import leyman.piano.model.Question;
 import leyman.piano.service.FrontendService;
 import leyman.piano.service.StackExchangeResponse;
 import leyman.piano.service.StackExchangeService;
-import leyman.piano.service.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import java.util.List;
 
 @Controller
 public class PianoController {
