@@ -1,72 +1,71 @@
 package leyman.piano.controller;
 
+import leyman.piano.filter.CORSFilter;
 import leyman.piano.form.QueryForm;
 import leyman.piano.model.Question;
 import leyman.piano.service.FrontendService;
 import leyman.piano.service.StackExchangeResponse;
 import leyman.piano.service.StackExchangeService;
 import leyman.piano.service.Status;
+
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.ui.Model;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@RunWith(SpringRunner.class)
-@WebMvcTest(PianoController.class)
-@AutoConfigureMockMvc
 public class PianoControllerTest {
 
-    @Autowired
+    private static final int UNKNOWN_ID = Integer.MAX_VALUE;
+
     private MockMvc mvc;
 
-    @MockBean
+    @Mock
     private FrontendService frontendService;
 
-    @MockBean
+    @Mock
     private StackExchangeService stackExchangeService;
 
-/*
-    @Test
-    public void whenHttpRequest_thenReturnModelWithQueryForm() throws Exception {
-        given(frontendService.homePage()).willReturn(new QueryForm());
-        ResultActions results = mvc.perform(get("/"));
-        results.andExpect(status().isOk())
-                .andExpect(model().attributeExists("queryForm"));
+    @InjectMocks
+    private PianoController pianoController;
+
+    @Before
+    public void init() {
+        MockitoAnnotations.initMocks(this);
+        mvc = MockMvcBuilders
+                .standaloneSetup(pianoController)
+                .addFilters(new CORSFilter())
+                .build();
     }
-*/
 
     @Test
-    public void whenHttpRequestWithQueryFormAndResponseWithStatusNotFound_thenReturnModelWithNotFoundMessage()
-            throws Exception {
-        QueryForm queryForm = new QueryForm();
-        queryForm.setTitle("java");
-        queryForm.setFromDate(new Date(1540732307000L));
-        queryForm.setToDate(new Date(1540732307000L));
-        StackExchangeResponse stackExchangeResponse = new StackExchangeResponse(null, Status.NOT_FOUND);
-        String title = "ILNUR";
-        given(frontendService.homePage()).willReturn(queryForm);
-        given(stackExchangeService.getQuestions(queryForm)).willReturn(stackExchangeResponse);
-        ResultActions results = mvc.perform(post("/resultsPage")
-        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-        .param("title", title));
+    public void getHomePage() throws Exception{
+        when(frontendService.homePage()).thenReturn(new QueryForm());
+        this.mvc.perform(get("/"))
+        .andExpect(status().isOk())
+        .andExpect(model().attributeExists("queryForm"));
     }
+
+    @Test
+    public void getResults() throws Exception{
+        QueryForm queryForm = new QueryForm();
+        List<Question> questions = new ArrayList<>();
+        StackExchangeResponse stackExchangeResponse = new StackExchangeResponse(questions, Status.SUCCESS);
+        ResultActions resultActions = mvc.perform(post("/homePage")
+                .param("title", "java"));
+        when(stackExchangeService.getQuestions(queryForm)).thenReturn(stackExchangeResponse);
+
+    }
+
+
 }

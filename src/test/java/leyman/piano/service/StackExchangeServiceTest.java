@@ -93,7 +93,7 @@ public class StackExchangeServiceTest {
                 .toUri();
     }
 
-    private Items createItems() {
+    public Items createItems() {
         List<Item> itemList = new ArrayList<>();
 
         Item item1 = new Item(
