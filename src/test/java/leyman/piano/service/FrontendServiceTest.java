@@ -1,6 +1,7 @@
 package leyman.piano.service;
 
 import leyman.piano.form.QueryForm;
+import leyman.piano.service.serviceImpl.FrontendServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class FrontendServiceTest {
 
         @Bean
         public FrontendService frontendService() {
-            return new FrontendService();
+            return new FrontendServiceImpl();
         }
     }
 

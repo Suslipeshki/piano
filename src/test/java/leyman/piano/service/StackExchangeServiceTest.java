@@ -3,6 +3,7 @@ package leyman.piano.service;
 import leyman.piano.form.QueryForm;
 import leyman.piano.model.Item;
 import leyman.piano.model.Items;
+import leyman.piano.service.serviceImpl.StackExchangeServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -26,7 +27,7 @@ public class StackExchangeServiceTest {
     @Mock
     private RestTemplate restTemplate;
     @InjectMocks
-    private StackExchangeService service;
+    private StackExchangeServiceImpl service;
 
     @Test
     public void whenValidQueryForm_thenReturnsListQuestionsAndStatusSuccess() {
